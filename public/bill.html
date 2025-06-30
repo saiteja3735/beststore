@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Order Bill</title>
+  <style>
+    body { font-family: sans-serif; background: #f5faff; }
+    header {
+      background: #2575fc;
+      color: white;
+      padding: 12px;
+      text-align: center;
+      font-size: 20px;
+      position: relative;
+    }
+    header a {
+      position: absolute;
+      right: 20px;
+      top: 12px;
+      background: white;
+      color: #2575fc;
+      padding: 6px 12px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+    }
+    .bill-section p { margin: 6px 0; }
+    .btn {
+      display: block;
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: #2575fc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    🧾 BestStore Bill
+    <a href="product.html">🏠 Home</a>
+  </header>
+
+  <div class="container" id="billContainer">
+    <div class="bill-section">
+      <p><strong>Bill ID:</strong> <span id="billId">-</span></p>
+      <p><strong>Customer Name:</strong> <span id="username">-</span></p>
+      <p><strong>Phone:</strong> <span id="phone">-</span></p>
+      <p><strong>Product:</strong> <span id="product">-</span></p>
+      <p><strong>Quantity:</strong> <span id="quantity">-</span></p>
+      <p><strong>Price:</strong> ₹<span id="price">0</span></p>
+      <p><strong>Date:</strong> <span id="date">-</span></p>
+      <p><strong>Status:</strong> <span id="status">-</span></p>
+    </div>
+    <button class="btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+  </div>
+
+  <script>
+    const billId = new URLSearchParams(window.location.search).get('id');
+    if (billId) {
+      fetch('http://localhost:3000/orders')
+        .then(res => res.json())
+        .then(data => {
+          const order = data.find(o => o.bill_id === billId);
+          if (!order) return;
+          document.getElementById('billId').textContent = order.bill_id;
+          document.getElementById('username').textContent = order.username;
+          document.getElementById('phone').textContent = order.phone;
+          document.getElementById('product').textContent = order.product_name;
+          document.getElementById('quantity').textContent = order.quantity || 1;
+          document.getElementById('price').textContent = order.price;
+          document.getElementById('date').textContent = order.date;
+          document.getElementById('status').textContent = order.status;
+        });
+    }
+  </script>
+</body>
+</html>

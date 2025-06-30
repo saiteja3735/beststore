@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - User Management</title>
+  <link rel="icon" href="https://res.cloudinary.com/dpwh5gufb/image/upload/v1719670000/beststore/icon.png">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #f0f4ff, #e4eaff);
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(to right, #ff416c, #ff4b2b);
+      padding: 20px;
+      color: #fff;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .user-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .user-card {
+      background: #fff;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .user-card h4 {
+      margin: 0;
+      font-size: 18px;
+      color: #222;
+    }
+
+    .user-card p {
+      margin: 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .user-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .user-actions button {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: white;
+      cursor: pointer;
+    }
+
+    .delete-btn {
+      background-color: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <header>👥 Admin - User Management</header>
+
+  <div class="container">
+    <div class="user-list" id="userList">
+      <!-- User Cards Go Here -->
+    </div>
+  </div>
+
+  <script>
+    function loadUsers() {
+      fetch('http://localhost:3000/users')
+        .then((res) => res.json())
+        .then((users) => {
+          const userList = document.getElementById('userList');
+          userList.innerHTML = '';
+          users.forEach(user => {
+            const card = document.createElement('div');
+            card.className = 'user-card';
+            card.innerHTML = `
+              <h4>${user.name}</h4>
+              <p>📧 ${user.email}</p>
+              <p>👤 Type: ${user.type}</p>
+              <div class="user-actions">
+                <button class="delete-btn" onclick="deleteUser(${user.id})">Delete</button>
+              </div>
+            `;
+            userList.appendChild(card);
+          });
+        });
+    }
+
+    function deleteUser(id) {
+      if (confirm('Are you sure you want to delete this user?')) {
+        fetch(`http://localhost:3000/delete-user/${id}`, {
+          method: 'DELETE'
+        }).then(() => loadUsers());
+      }
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>

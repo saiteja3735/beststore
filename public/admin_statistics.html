@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Full Statistics</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #f7f9fc, #e0f2ff);
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(to right, #283c86, #45a247);
+      color: white;
+      padding: 16px;
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+      position: relative;
+    }
+
+    .home-btn {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      background: white;
+      color: #283c86;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .container {
+      padding: 16px;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .summary-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      flex: 1 1 250px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      text-align: center;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 16px;
+      color: #444;
+    }
+
+    .card p {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 8px;
+      color: #283c86;
+    }
+
+    .chart-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      overflow-x: auto;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: auto !important;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        font-size: 20px;
+        padding: 14px;
+      }
+
+      .home-btn {
+        font-size: 12px;
+        padding: 5px 10px;
+        top: 12px;
+        right: 12px;
+      }
+
+      .summary-cards {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    📊 Admin - Full Dashboard
+    <a class="home-btn" href="admin.html">🏠 Admin Home</a>
+  </header>
+
+  <div class="container">
+    <div class="summary-cards">
+      <div class="card">
+        <h3>Total Orders</h3>
+        <p id="totalOrders">0</p>
+      </div>
+      <div class="card">
+        <h3>Total Income (₹)</h3>
+        <p id="totalIncome">0</p>
+      </div>
+      <div class="card">
+        <h3>Products Sold</h3>
+        <p id="totalProducts">0</p>
+      </div>
+    </div>
+
+    <div class="chart-box"><canvas id="orderStatusPie"></canvas></div>
+    <div class="chart-box"><canvas id="dailyIncomeChart"></canvas></div>
+    <div class="chart-box"><canvas id="productBarChart"></canvas></div>
+    <div class="chart-box"><canvas id="monthlyOrderChart"></canvas></div>
+    <div class="chart-box"><canvas id="paymentStatusPie"></canvas></div>
+  </div>
+
+  <script>
+    async function loadStats() {
+      const res = await fetch('http://localhost:3000/orders');
+      const orders = await res.json();
+
+      const statusCount = { pending: 0, confirmed: 0, paid: 0, delivered: 0, cancelled: 0 };
+      const incomeByDate = {};
+      const productSales = {};
+      const ordersByMonth = {};
+      const paymentStatus = { confirmed: 0, paid: 0, delivered: 0 };
+
+      let totalIncome = 0;
+
+      orders.forEach(o => {
+        statusCount[o.status] = (statusCount[o.status] || 0) + 1;
+
+        if (o.status === 'paid' || o.status === 'delivered') {
+          const date = o.date;
+          const amt = parseFloat(o.price);
+          totalIncome += amt;
+          incomeByDate[date] = (incomeByDate[date] || 0) + amt;
+        }
+
+        productSales[o.product_name] = (productSales[o.product_name] || 0) + 1;
+
+        const month = new Date(o.date).toLocaleString('default', { month: 'short', year: 'numeric' });
+        ordersByMonth[month] = (ordersByMonth[month] || 0) + 1;
+
+        if (paymentStatus[o.status] !== undefined) {
+          paymentStatus[o.status]++;
+        }
+      });
+
+      document.getElementById('totalOrders').textContent = orders.length;
+      document.getElementById('totalIncome').textContent = totalIncome.toFixed(2);
+      document.getElementById('totalProducts').textContent = Object.values(productSales).reduce((a, b) => a + b, 0);
+
+      const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        plugins: {
+          title: { display: true }
+        }
+      };
+
+      new Chart(document.getElementById('orderStatusPie'), {
+        type: 'pie',
+        data: {
+          labels: Object.keys(statusCount),
+          datasets: [{
+            data: Object.values(statusCount),
+            backgroundColor: ['#ffca28', '#4caf50', '#9c27b0', '#2196f3', '#f44336']
+          }]
+        },
+        options: { ...chartOptions, plugins: { title: { text: 'Order Status Distribution' } } }
+      });
+
+      new Chart(document.getElementById('dailyIncomeChart'), {
+        type: 'line',
+        data: {
+          labels: Object.keys(incomeByDate),
+          datasets: [{
+            label: 'Daily Income ₹',
+            data: Object.values(incomeByDate),
+            borderColor: '#00c853',
+            backgroundColor: 'rgba(0,200,83,0.2)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: { ...chartOptions, plugins: { title: { text: 'Income Per Day' } } }
+      });
+
+      new Chart(document.getElementById('productBarChart'), {
+        type: 'bar',
+        data: {
+          labels: Object.keys(productSales),
+          datasets: [{
+            label: 'Products Sold',
+            data: Object.values(productSales),
+            backgroundColor: '#42a5f5'
+          }]
+        },
+        options: {
+          ...chartOptions,
+          indexAxis: 'y',
+          plugins: { title: { text: 'Product Sales Count' } }
+        }
+      });
+
+      new Chart(document.getElementById('monthlyOrderChart'), {
+        type: 'line',
+        data: {
+          labels: Object.keys(ordersByMonth),
+          datasets: [{
+            label: 'Monthly Orders',
+            data: Object.values(ordersByMonth),
+            borderColor: '#673ab7',
+            backgroundColor: 'rgba(103, 58, 183, 0.2)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: { ...chartOptions, plugins: { title: { text: 'Monthly Order Trend' } } }
+      });
+
+      new Chart(document.getElementById('paymentStatusPie'), {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(paymentStatus),
+          datasets: [{
+            data: Object.values(paymentStatus),
+            backgroundColor: ['#4caf50', '#9c27b0', '#2196f3']
+          }]
+        },
+        options: { ...chartOptions, plugins: { title: { text: 'Payment Status Overview' } } }
+      });
+    }
+
+    loadStats();
+  </script>
+</body>
+</html>

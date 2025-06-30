@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - Orders</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4ff;
+    }
+
+    header {
+      background: linear-gradient(to right, #00b09b, #96c93d);
+      color: white;
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 16px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .controls input[type="text"], .controls select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      width: 100%;
+      max-width: 250px;
+    }
+
+    .order-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 16px;
+      margin-bottom: 20px;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    .order-card h4 {
+      margin: 0;
+    }
+
+    .order-card p {
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    .actions {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .actions button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #fff;
+    }
+
+    .confirm { background: #4caf50; }
+    .paid { background: #9c27b0; }
+    .delivered { background: #2196f3; }
+    .delete { background: #f44336; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <header>📦 Admin - Orders</header>
+  <div class="container">
+    <div class="controls">
+      <select id="filterStatus" onchange="loadOrders()">
+        <option value="all">All Orders</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="paid">Payment Completed</option>
+        <option value="delivered">Delivered</option>
+      </select>
+      <input type="text" id="searchInput" oninput="loadOrders()" placeholder="Search by name or bill ID..." />
+    </div>
+    <div id="orderContainer"></div>
+  </div>
+
+  <script>
+    function updateOrderStatus(orderId, action, phone) {
+      fetch(`http://localhost:3000/update-order/${orderId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action })
+      }).then(() => loadOrders());
+    }
+
+    function loadOrders() {
+      const statusFilter = document.getElementById('filterStatus').value;
+      const search = document.getElementById('searchInput').value.toLowerCase();
+
+      fetch('http://localhost:3000/orders')
+        .then(res => res.json())
+        .then(orders => {
+          const container = document.getElementById('orderContainer');
+          container.innerHTML = '';
+
+          let filtered = orders.filter(order => {
+            const matchesStatus =
+              statusFilter === 'all' || order.status === statusFilter;
+            const matchesSearch =
+              order.username.toLowerCase().includes(search) ||
+              (order.bill_id && order.bill_id.toLowerCase().includes(search));
+            return matchesStatus && matchesSearch;
+          });
+
+          // 🔽 Move delivered orders to bottom (only for 'all')
+          if (statusFilter === 'all') {
+            filtered.sort((a, b) => {
+              if (a.status === 'delivered' && b.status !== 'delivered') return 1;
+              if (a.status !== 'delivered' && b.status === 'delivered') return -1;
+              return 0;
+            });
+          }
+
+          if (filtered.length === 0) {
+            container.innerHTML = '<p>No matching orders found.</p>';
+            return;
+          }
+
+          filtered.forEach(order => {
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.innerHTML = `
+              <h4>Order #${order.id} - ${order.username}</h4>
+              <p>📦 Product: ${order.product_name}</p>
+              <p>🧮 Quantity: ${order.quantity || 1}</p>
+              <p>💰 Price: ₹${order.price}</p>
+              <p>📅 Date: ${order.date}</p>
+              <p>📞 Phone: ${order.phone}</p>
+              <p>🧾 Bill ID: ${order.bill_id || 'N/A'}</p>
+              <p>🚚 Status: ${order.status}</p>
+              <div class="actions">
+                ${order.status === 'pending' ? `
+                  <button class="confirm" onclick="updateOrderStatus(${order.id}, 'confirm', '${order.phone}')">Confirm</button>
+                  <button class="delete" onclick="updateOrderStatus(${order.id}, 'delete', '${order.phone}')">Delete</button>` : ''}
+                ${order.status === 'confirmed' ? `
+                  <button class="paid" onclick="updateOrderStatus(${order.id}, 'paid', '${order.phone}')">Payment Received</button>
+                  <button class="delete" onclick="updateOrderStatus(${order.id}, 'delete', '${order.phone}')">Delete</button>` : ''}
+                ${order.status === 'paid' ? `
+                  <button class="delivered" onclick="updateOrderStatus(${order.id}, 'delivered', '${order.phone}')">Delivered</button>
+                  <button class="delete" onclick="updateOrderStatus(${order.id}, 'delete', '${order.phone}')">Delete</button>` : ''}
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        });
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>

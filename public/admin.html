@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard – BestStore</title>
+  <link rel="icon" href="https://res.cloudinary.com/dpwh5gufb/image/upload/v1719670000/beststore/icon.png">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #eef2f3, #8e9eab);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      letter-spacing: 1px;
+      animation: slideIn 0.5s ease-in-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .container {
+      padding: 20px;
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      flex: 1;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-icon {
+      font-size: 32px;
+      margin-bottom: 10px;
+      animation: popIn 0.4s ease-in-out;
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .card a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    footer {
+      text-align: center;
+      padding: 14px;
+      font-size: 14px;
+      color: #555;
+      background: #eaeaea;
+      box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    @media screen and (max-width: 500px) {
+      header {
+        font-size: 20px;
+        padding: 16px;
+      }
+
+      .card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    🛠️ BestStore Admin Panel
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <a href="admin_products.html">
+        <div class="card-icon">📦</div>
+        <div class="card-title">Manage Products</div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="admin_users.html">
+        <div class="card-icon">👥</div>
+        <div class="card-title">User Management</div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="admin_orders.html">
+        <div class="card-icon">📟</div>
+        <div class="card-title">Orders</div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="admin_income.html">
+        <div class="card-icon">💰</div>
+        <div class="card-title">Income Report</div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="admin_statistics.html">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Statistics</div>
+      </a>
+    </div>
+    <div class="card">
+      <a href="index.html">
+        <div class="card-icon">🚪</div>
+        <div class="card-title">Logout</div>
+      </a>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 BestStore Admin. All rights reserved.
+  </footer>
+
+</body>
+</html>

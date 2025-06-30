@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Add Product - Admin</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #f0f4ff, #d0e6ff);
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: linear-gradient(to right, #283c86, #45a247);
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #283c86;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #283c86;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #1c2b5a;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 15px;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+  <header>🛒 Admin - Add Product</header>
+
+  <div class="container">
+    <h2>Add New Product</h2>
+    <input type="text" id="name" placeholder="Product Name" required />
+    <input type="number" id="price" placeholder="Price (₹)" required />
+    <input type="number" id="quantity" placeholder="Quantity in Stock" required />
+    <input type="text" id="image_url" placeholder="Image URL" required />
+    <button onclick="addProduct()">Add Product</button>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    async function addProduct() {
+      const name = document.getElementById('name').value;
+      const price = document.getElementById('price').value;
+      const quantity = document.getElementById('quantity').value;
+      const image_url = document.getElementById('image_url').value;
+
+      const res = await fetch('http://localhost:3000/add-product', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, price, quantity, image_url })
+      });
+
+      const status = document.getElementById('status');
+      if (res.ok) {
+        status.textContent = '✅ Product added successfully!';
+        document.getElementById('name').value = '';
+        document.getElementById('price').value = '';
+        document.getElementById('quantity').value = '';
+        document.getElementById('image_url').value = '';
+      } else {
+        status.style.color = 'red';
+        status.textContent = '❌ Failed to add product.';
+      }
+    }
+  </script>
+
+</body>
+</html>

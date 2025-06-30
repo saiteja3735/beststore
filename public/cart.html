@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Cart - BestStore</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4cc9f0;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4caf50;
+      --warning: #ff9800;
+      --danger: #f44336;
+      --info: #2196f3;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      min-height: 100vh;
+      color: var(--dark);
+    }
+
+    header {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1.75rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      transform: translateY(20px);
+      opacity: 0;
+      animation: fadeInUp 0.6s forwards;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      animation: fadeIn 0.4s forwards;
+    }
+
+    .item:nth-child(1) { animation-delay: 0.1s; }
+    .item:nth-child(2) { animation-delay: 0.2s; }
+    .item:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .item-info {
+      flex-grow: 1;
+    }
+
+    .item-info h4 {
+      margin: 0 0 0.5rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--dark);
+    }
+
+    .item-info p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #666;
+    }
+
+    .item-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    button {
+      padding: 0.5rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+    }
+
+    .qty-btn {
+      width: 30px;
+      height: 30px;
+      background: var(--light);
+      color: var(--dark);
+      font-weight: bold;
+    }
+
+    .qty-btn:hover {
+      background: #e9ecef;
+    }
+
+    .qty {
+      margin: 0 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .remove {
+      background: var(--danger);
+      color: white;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+
+    .remove:hover {
+      background: #d32f2f;
+    }
+
+    .total {
+      text-align: right;
+      margin: 1.5rem 0 1rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--dark);
+      animation: fadeIn 0.4s forwards;
+      animation-delay: 0.4s;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+
+    .checkout-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(67, 97, 238, 0.4);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 2rem 0;
+      animation: fadeIn 0.6s forwards;
+    }
+
+    .empty-cart img {
+      width: 150px;
+      opacity: 0.7;
+      margin-bottom: 1rem;
+    }
+
+    .empty-cart p {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        font-size: 1.5rem;
+        padding: 1.25rem;
+      }
+      
+      .container {
+        padding: 1.25rem;
+        margin: 1.5rem;
+      }
+      
+      .item-info h4 {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    📦 My Orders
+    <a href="product.html">🏠 Home</a>
+  </header>
+  <div class="container" id="cartContainer">
+    <div class="empty-cart">
+      <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" alt="Empty cart">
+      <p>Your cart is empty</p>
+    </div>
+  </div>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    function renderCart() {
+      const container = document.getElementById('cartContainer');
+      container.innerHTML = '';
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="empty-cart animate__animated animate__fadeIn">
+            <img src="https://cdn-icons-png.flaticon.com/512/2038/2038854.png" alt="Empty cart">
+            <p>Your cart is empty</p>
+          </div>`;
+        return;
+      }
+
+      let total = 0;
+
+      cart.forEach((item, index) => {
+        const itemQty = Number(item.qty) || 1;
+        const itemPrice = Number(item.price) || 0;
+        const itemTotal = itemPrice * itemQty;
+        total += itemTotal;
+
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.innerHTML = `
+          <div class="item-info">
+            <h4>${item.name}</h4>
+            <p>₹${itemPrice} x ${itemQty} = ₹${itemTotal.toFixed(2)}</p>
+          </div>
+          <div class="item-actions">
+            <button class="qty-btn" onclick="decreaseQty(${index})">-</button>
+            <span class="qty">${itemQty}</span>
+            <button class="qty-btn" onclick="increaseQty(${index})">+</button>
+            <button class="remove" onclick="removeItem(${index})">Remove</button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+
+      const totalDiv = document.createElement('div');
+      totalDiv.className = 'total';
+      totalDiv.textContent = `Total: ₹${total.toFixed(2)}`;
+      container.appendChild(totalDiv);
+
+      const checkoutBtn = document.createElement('button');
+      checkoutBtn.className = 'checkout-btn';
+      checkoutBtn.textContent = 'Proceed to Checkout';
+      checkoutBtn.onclick = goToCheckout;
+      container.appendChild(checkoutBtn);
+    }
+
+    function increaseQty(index) {
+      cart[index].qty = Number(cart[index].qty || 1) + 1;
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    function decreaseQty(index) {
+      if (cart[index].qty > 1) {
+        cart[index].qty = Number(cart[index].qty || 1) - 1;
+        localStorage.setItem('cart', JSON.stringify(cart));
+        renderCart();
+      }
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    function goToCheckout() {
+      if (cart.length === 0) {
+        alert('Your cart is empty!');
+        return;
+      }
+
+      localStorage.setItem('checkoutCart', JSON.stringify(cart));
+      window.location.href = 'checkout.html';
+    }
+
+    renderCart();
+  </script>
+</body>
+</html>

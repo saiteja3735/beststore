@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checkout - BestStore</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #f0f4ff, #e6f2ff);
+      color: #333;
+      padding: 0 16px;
+    }
+
+    header {
+      background: linear-gradient(to right, #00b09b, #96c93d);
+      padding: 20px;
+      text-align: center;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      position: relative;
+    }
+
+    .home-btn {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: white;
+      color: #00b09b;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 14px;
+      transition: 0.3s ease;
+    }
+
+    .home-btn:hover {
+      background: #e0f7f4;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #444;
+    }
+
+    .summary-item, .summary-total {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 15px;
+    }
+
+    .summary-total {
+      font-weight: bold;
+      border-top: 1px solid #ccc;
+      margin-top: 12px;
+      padding-top: 12px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      transition: 0.3s ease;
+    }
+
+    input[type="text"]:focus {
+      border-color: #00b09b;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #00b09b;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s ease;
+      margin-top: 12px;
+    }
+
+    button:hover {
+      background: #01917f;
+    }
+
+    .success-message {
+      text-align: center;
+      padding: 40px;
+      animation: zoomIn 0.4s ease-in-out;
+    }
+
+    .success-message .tick {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    @keyframes zoomIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    @media (max-width: 600px) {
+      header { font-size: 20px; }
+      .container { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    📦 Checkout
+    <a class="home-btn" href="product.html">🏠 Home</a>
+  </header>
+
+  <div class="container" id="checkoutBox">
+    <div class="summary" id="summary"></div>
+
+    <input type="text" id="name" placeholder="Your Name" required />
+    <input type="text" id="phone" placeholder="Phone Number" required />
+    <input type="text" id="address" placeholder="Address" required />
+    <input type="text" id="pincode" placeholder="Pincode" required />
+
+    <button onclick="placeOrder()">Confirm Order</button>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const productFromURL = urlParams.get('product');
+    const priceFromURL = urlParams.get('price');
+
+    let items = [];
+
+    if (productFromURL && priceFromURL) {
+      items = [{
+        name: decodeURIComponent(productFromURL),
+        price: Number(priceFromURL),
+        qty: 1
+      }];
+    } else {
+      items = JSON.parse(localStorage.getItem('checkoutCart')) || [];
+    }
+
+    const summaryDiv = document.getElementById('summary');
+    let total = 0;
+
+    summaryDiv.innerHTML = '<h3>🧾 Order Summary</h3>';
+    items.forEach(item => {
+      const qty = Number(item.qty || 1);
+      const price = Number(item.price || 0);
+      const itemTotal = qty * price;
+      total += itemTotal;
+      summaryDiv.innerHTML += `
+        <div class="summary-item">
+          <span>${item.name} (${qty}x)</span>
+          <span>₹${itemTotal.toFixed(2)}</span>
+        </div>
+      `;
+    });
+    summaryDiv.innerHTML += `<div class="summary-total">Total: ₹${total.toFixed(2)}</div>`;
+
+    function placeOrder() {
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+      const pincode = document.getElementById('pincode').value.trim();
+
+      if (!name || !phone || !address || !pincode) {
+        alert('Please fill all fields');
+        return;
+      }
+
+      Promise.all(items.map(item => {
+        const bill_id = 'BILL' + Math.floor(1000 + Math.random() * 9000);
+        const order = {
+          username: name,
+          phone,
+          product_name: item.name,
+          price: Number(item.price) * (item.qty || 1),
+          quantity: item.qty || 1,
+          status: 'pending',
+          bill_id: bill_id
+        };
+
+        return fetch('http://localhost:3000/add-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(order)
+        });
+      })).then(() => {
+        document.getElementById('checkoutBox').innerHTML = `
+          <div class="success-message">
+            <div class="tick">✅</div>
+            <h2>Order Confirmed!</h2>
+            <p>We will contact you shortly through WhatsApp.</p>
+          </div>
+        `;
+        localStorage.removeItem('checkoutCart');
+        localStorage.removeItem('cart');
+        setTimeout(() => {
+          window.location.href = 'product.html';
+        }, 3000);
+      }).catch(() => {
+        alert('❌ Failed to place order.');
+      });
+    }
+  </script>
+</body>
+</html>

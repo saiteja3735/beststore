@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Orders - BestStore</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4cc9f0;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4caf50;
+      --warning: #ff9800;
+      --danger: #f44336;
+      --info: #2196f3;
+      --purple: #9c27b0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      min-height: 100vh;
+      color: var(--dark);
+    }
+
+    header {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 1.75rem;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+      animation: shine 3s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .order {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      margin-bottom: 1.5rem;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: fadeInUp 0.6s forwards;
+    }
+
+    .order:nth-child(1) { animation-delay: 0.1s; }
+    .order:nth-child(2) { animation-delay: 0.2s; }
+    .order:nth-child(3) { animation-delay: 0.3s; }
+    .order:nth-child(4) { animation-delay: 0.4s; }
+
+    .order:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+    }
+
+    .order h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1.25rem;
+      color: var(--dark);
+      font-weight: 600;
+    }
+
+    .order p {
+      margin: 0.25rem 0;
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    .status {
+      display: inline-block;
+      margin-top: 0.75rem;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      animation: pulse 2s infinite;
+    }
+
+    .confirmed { background: var(--success); color: white; }
+    .paid { background: var(--purple); color: white; }
+    .delivered { background: var(--info); color: white; }
+    .cancelled { background: var(--danger); color: white; }
+    .pending { background: var(--warning); color: var(--dark); }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      animation: fadeIn 0.6s forwards;
+    }
+
+    .empty-state img {
+      width: 150px;
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+
+    .empty-state p {
+      color: #666;
+      font-size: 1.1rem;
+    }
+
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(0,0,0,0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        font-size: 1.5rem;
+        padding: 1.25rem;
+      }
+      
+      .order {
+        padding: 1.25rem;
+      }
+      
+      .order h3 {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="animate__animated animate__fadeInDown">📦 My Orders</header>
+  <div class="container" id="orderList">
+    <div class="loading">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <script>
+    const username = localStorage.getItem('username');
+
+    if (!username) {
+      document.getElementById('orderList').innerHTML = `
+        <div class="empty-state animate__animated animate__fadeIn">
+          <img src="https://cdn-icons-png.flaticon.com/512/4076/4076478.png" alt="Login required">
+          <p>Please login to view your orders</p>
+        </div>`;
+    } else {
+      fetch('http://localhost:3000/orders')
+        .then(res => res.json())
+        .then(data => {
+          const userOrders = data.filter(order => order.username === username);
+          const container = document.getElementById('orderList');
+          container.innerHTML = '';
+
+          if (userOrders.length === 0) {
+            container.innerHTML = `
+              <div class="empty-state animate__animated animate__fadeIn">
+                <img src="https://cdn-icons-png.flaticon.com/512/4076/4076478.png" alt="No orders">
+                <p>No orders found</p>
+              </div>`;
+            return;
+          }
+
+          userOrders.forEach(order => {
+            const div = document.createElement('div');
+            div.className = 'order';
+            div.innerHTML = `
+              <h3>${order.product_name}</h3>
+              <p><strong>Bill ID:</strong> ${order.bill_id}</p>
+              <p><strong>Qty:</strong> ${order.qty}</p>
+              <p><strong>Amount:</strong> ₹${order.price}</p>
+              <p><strong>Date:</strong> ${order.date || 'N/A'}</p>
+              <span class="status ${order.status}">${order.status.toUpperCase()}</span>
+            `;
+            container.appendChild(div);
+          });
+        })
+        .catch(() => {
+          document.getElementById('orderList').innerHTML = `
+            <div class="empty-state animate__animated animate__fadeIn">
+              <img src="https://cdn-icons-png.flaticon.com/512/753/753345.png" alt="Error">
+              <p>Failed to load orders. Please try again.</p>
+            </div>`;
+        });
+    }
+  </script>
+</body>
+</html>

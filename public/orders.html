@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders - BestStore</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f2f8fc;
+      margin: 0;
+    }
+
+    header {
+      background: linear-gradient(to right, #f7971e, #ffd200);
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 16px;
+    }
+
+    .order-card {
+      background: #fff;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .order-card h4 {
+      margin: 0;
+      color: #222;
+    }
+
+    .order-card p {
+      margin: 4px 0;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .status {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      display: inline-block;
+      margin-top: 10px;
+      background: #ccc;
+    }
+
+    .confirmed { background: #4caf50; color: white; }
+    .paid { background: #9c27b0; color: white; }
+    .delivered { background: #2196f3; color: white; }
+    .cancelled { background: #f44336; color: white; }
+    .pending { background: #ffc107; color: black; }
+
+    .view-bill-btn {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 6px 12px;
+      background: #2575fc;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    
+  </style>
+</head>
+<body>
+  <header>📦 My Orders
+    <a class="home-btn" href="product.html">🏠 Home</a>
+  </header>
+  
+  <div class="container" id="orderList"></div>
+
+  <script>
+    const username = localStorage.getItem('username') || prompt("Enter your name to view orders:");
+    localStorage.setItem('username', username);
+
+    function loadOrders() {
+      fetch('http://localhost:3000/orders')
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById('orderList');
+          list.innerHTML = '';
+          const myOrders = data.filter(o => o.username === username);
+
+          if (myOrders.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:red">No orders found.</p>';
+            return;
+          }
+
+          myOrders.forEach(o => {
+            const card = document.createElement('div');
+            card.className = 'order-card';
+            card.innerHTML = `
+              <h4>${o.product_name}</h4>
+              <p>💰 ₹${o.price} | 🧾 ${o.bill_id || 'N/A'}</p>
+              <p>📦 Quantity: ${o.quantity || 1}</p>
+              <p>📅 ${o.date}</p>
+              <p>📞 ${o.phone}</p>
+              <span class="status ${o.status}">${o.status.toUpperCase()}</span><br>
+              ${o.bill_id ? `<a class="view-bill-btn" href="bill.html?id=${o.bill_id}" target="_blank">View Bill</a>` : ''}
+            `;
+            list.appendChild(card);
+          });
+        });
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>

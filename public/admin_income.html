@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Income Report</title>
+  <link rel="icon" href="https://res.cloudinary.com/dpwh5gufb/image/upload/v1719670000/beststore/icon.png">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom, #f0f4ff, #d9e4f5);
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(to right, #ff7e5f, #feb47b);
+      padding: 20px;
+      color: #fff;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 16px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 10px 0;
+      border-bottom: 2px solid #eee;
+    }
+
+    .summary div {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .entry {
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 10px;
+      background: #f9f9f9;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .entry p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>💰 Admin - Income Report</header>
+  <div class="container">
+    <div class="summary">
+      <div>Total Income:</div>
+      <div id="totalIncome">₹0.00</div>
+    </div>
+
+    <div id="incomeList">
+      <!-- Paid Orders Will Appear Here -->
+    </div>
+  </div>
+
+  <script>
+    async function loadIncome() {
+      const res = await fetch('http://localhost:3000/orders');
+      const orders = await res.json();
+      const incomeList = document.getElementById('incomeList');
+      const totalDiv = document.getElementById('totalIncome');
+
+      let total = 0;
+      incomeList.innerHTML = '';
+
+      orders.filter(o => o.status === 'paid' || o.status === 'delivered')
+        .forEach(o => {
+          total += parseFloat(o.price);
+          const item = document.createElement('div');
+          item.className = 'entry';
+          item.innerHTML = `
+            <p><strong>${o.username}</strong> paid for <strong>${o.product_name}</strong></p>
+            <p>Amount: ₹${o.price} | Bill ID: ${o.bill_id || 'N/A'}</p>
+            <p>Date: ${o.date}</p>
+          `;
+          incomeList.appendChild(item);
+        });
+
+      totalDiv.textContent = '₹' + total.toFixed(2);
+    }
+
+    loadIncome();
+  </script>
+</body>
+</html>
